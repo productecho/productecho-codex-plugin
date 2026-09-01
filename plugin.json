@@ -1,0 +1,47 @@
+{
+  "name": "productecho-plugin",
+  "version": "1.0.0",
+  "description": "Deploy managed databases and scalable applications instantly on ProductEcho.",
+  "author": {
+    "name": "ProductEcho Team",
+    "email": "admin@productecho.com",
+    "url": "https://productecho.com"
+  },
+  "homepage": "https://productecho.com",
+  "repository": "https://github.com/productecho/pc-cloud",
+  "license": "Apache-2.0",
+  "keywords": [
+    "cloud-deployment",
+    "managed-databases",
+    "postgresql",
+    "web-apps",
+    "apis",
+    "developer-platform",
+    "mcp",
+    "automation",
+    "infrastructure"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "apps": "./.app.json",
+  "interface": {
+    "displayName": "ProductEcho",
+    "shortDescription": "Deploy managed databases and web applications instantly",
+    "longDescription": "ProductEcho gives AI agents and developers instant cloud infrastructure. Provision production-ready managed PostgreSQL databases, inspect project codebases, deploy scalable web applications and APIs, expand storage with zero downtime, and hibernate idle services directly from Codex and ChatGPT.",
+    "developerName": "ProductEcho",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://productecho.com",
+    "privacyPolicyURL": "https://productecho.com/privacy",
+    "termsOfServiceURL": "https://productecho.com/terms",
+    "defaultPrompt": [
+      "Show my ProductEcho workspace overview and active services",
+      "Provision a new managed PostgreSQL database and get connection details",
+      "Inspect this project and deploy it to production",
+      "Expand my database storage capacity to 20GB"
+    ],
+    "brandColor": "#0F172A",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png"
+  }
+}
