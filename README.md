@@ -41,16 +41,22 @@ The **ProductEcho Plugin** (`productecho-plugin`) connects **Codex** and **ChatG
 ```
 productecho-plugin/
 ├── .codex-plugin/
-│   └── plugin.json          # Main Codex Plugin Manifest (ProductEcho)
+│   └── plugin.json          # Codex Plugin Manifest
+├── plugin.json              # Root Manifest (dual-compatibility)
 ├── .mcp.json                # MCP Server connection configuration
+├── mcp_config.json          # Universal MCP Server configuration
 ├── .app.json                # Registered MCP application mapping
 ├── assets/
 │   ├── icon.png             # Plugin composer icon
 │   └── logo.png             # Plugin brand logo
+├── rules/
+│   └── AGENTS.md            # Multi-language deployment guardrails & rules
 ├── skills/
 │   ├── productecho-deploy/  # Application deployment & packaging skill
 │   ├── productecho-postgres/# Managed PostgreSQL database skill
 │   └── productecho-connect/ # Workspace connection & governance skill
+├── LICENSE                  # Apache-2.0 License
+├── .gitignore               # Git ignore configuration
 └── README.md
 ```
 
