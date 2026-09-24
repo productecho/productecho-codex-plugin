@@ -8,13 +8,13 @@ This document provides a concise reference for all ProductEcho Model Context Pro
 
 | Tool | Purpose & Value | Primary Arguments |
 | :--- | :--- | :--- |
-| `inspect_application_source` | Inspect source tree to detect runtime environment, framework, listening port, and required environment variables before deploying. | `application_name`, `s3_key`, `upload_id`, `git_url`, `git_branch`, `env_vars` |
-| `deploy_application` | Build and deploy an application to production cloud infrastructure. Returns a presigned S3 upload URL if source is omitted. | `application_name`, `s3_key`, `upload_id`, `container_port`, `env_vars` |
+| `inspect_application_source` | Inspect source tree and return `recommended_deployment_target` (`container` or `static_cdn`) with build facts. | `application_name`, `s3_key`, `upload_id`, `git_url`, `git_branch`, `root_directory`, `env_vars` |
+| `deploy_application` | Build and deploy using `auto`, `container`, or an inspection-approved `static_cdn` target. Returns a presigned S3 upload URL if source is omitted. | `application_name`, `deployment_target`, `s3_key`, `upload_id`, `git_url`, `container_port`, `env_vars` |
 | `list_applications` | List active application deployments for authenticated tenant. | `deployment_status` (optional filter) |
 | `get_application_status` | Query live status, deployment logs, and public HTTPS domain endpoint. | `application_name` |
-| `pause_application` | Hibernate running application to reduce compute spend during idle periods. | `application_name` |
-| `resume_application` | Resume a paused application to bring it back online instantly. | `application_name` |
-| `delete_application` | Deprovision application and release all associated cloud resources. | `application_name` |
+| `pause_application` | Scale a container to zero or remove a static app's CloudFront KVS route. | `application_name` |
+| `resume_application` | Resume a container or restore and health-check a static app's active KVS route. | `application_name` |
+| `delete_application` | Remove the public route first, then deprovision target-specific resources and artifacts. | `application_name` |
 
 ---
 

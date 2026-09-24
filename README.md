@@ -64,22 +64,18 @@ productecho-plugin/
 
 ## 🚀 Authentication & Quick Start
 
-### Step 1: Sign Up / Sign In
-1. Visit **[app.productecho.com/signup](https://app.productecho.com/signup)** (or **[app.productecho.com/login](https://app.productecho.com/login)**).
-2. Complete signup or sign in to your team workspace.
+### Standard OAuth 2.0 Flow (Codex / ChatGPT / Claude / mcp-remote)
+The ProductEcho plugin supports standard OAuth 2.1 PKCE authorization.
 
-### Step 2: Copy Your API Token
-1. In the console, go to **Settings → API Keys**.
-2. Generate or copy your active MCP API token (`pe_live_...`).
+When installing the plugin or connecting via `mcp-remote`, authentication is negotiated automatically:
+1. `mcp-remote` connects to the MCP endpoint (`http://localhost:8000/mcp` or `https://api.productecho.com/mcp`).
+2. The server challenges with `HTTP 401` and provides discovery metadata (`/.well-known/oauth-protected-resource`).
+3. Your browser automatically opens the consent screen (`/oauth/authorize`), where you click **Authorize**.
+4. An OAuth access token (`pe_at_...`) is issued and cached locally—no manual key copy-pasting required!
 
-### Step 3: Configure Token in Codex / ChatGPT
+The plugin requests `mcp:fullwrite` by default so one consent covers the complete full-stack workflow: workspace discovery, application deployment and management, PostgreSQL provisioning and management, and database credential access. `mcp:fullread` is available for read-only clients. Sending support requests uses the separate `mcp:support:write` scope.
 
-#### Option A: Set Environment Variable
-```bash
-export PRODUCT_ECHO_API_KEY="pe_live_your_token_here"
-```
-
-#### Option B: Configure in `.mcp.json`
+#### `.mcp.json` Configuration (Local & Remote)
 ```json
 {
   "productecho": {
@@ -87,16 +83,20 @@ export PRODUCT_ECHO_API_KEY="pe_live_your_token_here"
     "args": [
       "-y",
       "mcp-remote",
-      "https://api.productecho.com/mcp",
-      "--header",
-      "PRODUCT-ECHO-API-KEY: pe_live_your_token_here"
-    ],
-    "env": {
-      "PRODUCT_ECHO_API_KEY": "pe_live_your_token_here"
-    }
+      "http://localhost:8000/mcp"
+    ]
   }
 }
 ```
+
+### Static API Key Fallback (CLI / Scripts)
+For automated pipelines or custom scripts, pass a static tenant API key via headers:
+```bash
+export PRODUCT_ECHO_API_KEY="pe_live_your_token_here"
+```
+Header format:
+`PRODUCT-ECHO-API-KEY: pe_live_...` or `Authorization: Bearer pe_live_...`
+
 
 ---
 

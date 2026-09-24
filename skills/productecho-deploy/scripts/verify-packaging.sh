@@ -24,12 +24,29 @@ WARNINGS=0
 if [[ -f "${DOCKERFILE}" ]]; then
   echo "✅ Dockerfile detected. Custom Dockerfile build strategy will be used."
 else
-  echo "ℹ️ No Dockerfile found. Cloud Paketo Buildpacks will be used."
+  echo "ℹ️ No Dockerfile found. Source inspection will choose container or static_cdn."
 fi
 
 # Check 2: Node.js / JavaScript / TypeScript projects
 if [[ -f "${PACKAGE_JSON}" ]]; then
   echo "📦 Detected Node.js / Web project."
+  HAS_BUILD=$(node -e "
+    try {
+      const pkg = require('./${PACKAGE_JSON}');
+      if (pkg.scripts && pkg.scripts.build) console.log('OK');
+    } catch(e){}
+  " 2>/dev/null || true)
+  HAS_SERVER_RUNTIME=$(node -e "
+    try {
+      const pkg = require('./${PACKAGE_JSON}');
+      const deps = Object.assign({}, pkg.dependencies || {}, pkg.devDependencies || {});
+      const server = ['express', 'fastify', '@nestjs/core', 'koa'].some((name) => deps[name]);
+      if (server || (pkg.scripts && pkg.scripts.start && !deps.vite && !deps['react-scripts'])) console.log('YES');
+    } catch(e){}
+  " 2>/dev/null || true)
+  if [[ ! -f "${DOCKERFILE}" && "${HAS_BUILD}" == "OK" && "${HAS_SERVER_RUNTIME}" != "YES" ]]; then
+    echo "ℹ️ Static SPA candidate detected. Confirm inspect_application_source recommends 'static_cdn' before selecting it."
+  fi
   SERVER_PKGS=("next" "vinxi" "express" "fastify" "@nestjs/core" "koa" "remix" "astro" "@sveltejs/kit")
   for pkg in "${SERVER_PKGS[@]}"; do
     if grep -q "\"${pkg}\"" "${PACKAGE_JSON}"; then
@@ -130,6 +147,23 @@ if [[ -f "${POM_XML}" || -f "${BUILD_GRADLE}" || -f "${BUILD_GRADLE_KTS}" ]]; th
   fi
   if [[ (-f "${BUILD_GRADLE}" || -f "${BUILD_GRADLE_KTS}") && ! -f "${TARGET_DIR}/gradlew" ]]; then
     echo "⚠️ [Warning] Gradle Wrapper './gradlew' not found. Recommended to include wrapper for reproducible in-cluster builds."
+    WARNINGS=$((WARNINGS + 1))
+  fi
+fi
+
+# Check 6: ProductEcho State Linking & .gitignore
+GITIGNORE="${TARGET_DIR}/.gitignore"
+if [[ -d "${TARGET_DIR}/.productecho" ]]; then
+  echo "🔗 Detected .productecho state directory."
+  if [[ -f "${GITIGNORE}" ]]; then
+    if grep -q "^\.productecho" "${GITIGNORE}" || grep -q "^/\.productecho" "${GITIGNORE}"; then
+      echo "✅ .productecho/ is properly ignored in .gitignore."
+    else
+      echo "⚠️ [Warning] '.productecho/' should be added to .gitignore to prevent committing local state."
+      WARNINGS=$((WARNINGS + 1))
+    fi
+  else
+    echo "⚠️ [Warning] No .gitignore found. Create .gitignore and add '.productecho/'."
     WARNINGS=$((WARNINGS + 1))
   fi
 fi

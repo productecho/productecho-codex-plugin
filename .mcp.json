@@ -1,15 +1,8 @@
 {
-  "productecho": {
-    "command": "npx",
-    "args": [
-      "-y",
-      "mcp-remote",
-      "https://api.productecho.com/mcp",
-      "--header",
-      "PRODUCT-ECHO-API-KEY: ${PRODUCT_ECHO_API_KEY}"
-    ],
-    "env": {
-      "PRODUCT_ECHO_API_KEY": "${PRODUCT_ECHO_API_KEY}"
+  "mcpServers": {
+    "productecho": {
+      "type": "http",
+      "url": "https://api.productecho.com/mcp"
     }
   }
 }

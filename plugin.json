@@ -24,6 +24,13 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "apps": "./.app.json",
+  "auth": {
+    "type": "oauth",
+    "authorization_url": "https://api.productecho.com/oauth/authorize",
+    "client_url": "https://api.productecho.com/oauth/token",
+    "scope": "mcp:fullwrite offline_access",
+    "authorization_content_type": "application/x-www-form-urlencoded"
+  },
   "interface": {
     "displayName": "ProductEcho",
     "shortDescription": "Deploy managed databases and web applications instantly",

@@ -4,7 +4,13 @@
       "id": "plugin_asdk_app_productecho",
       "name": "ProductEcho",
       "description": "Instant Cloud Platform for Managed Databases and Web Applications",
-      "mcpServerUrl": "https://api.productecho.com/mcp"
+      "mcpServerUrl": "https://api.productecho.com/mcp",
+      "auth": {
+        "type": "oauth2",
+        "authorizationUrl": "https://api.productecho.com/oauth/authorize",
+        "tokenUrl": "https://api.productecho.com/oauth/token",
+        "scope": "mcp:fullwrite offline_access"
+      }
     }
   ]
 }

@@ -26,6 +26,22 @@ When writing code, configuring project manifests, creating build scripts, or pac
 - **Port Binding**: Set `server.port=${PORT:8080}` and `server.address=0.0.0.0` in configuration.
 - **Memory**: Allow automatic JVM memory calculation; avoid hardcoding static `-Xmx4g` flags that exceed container limits.
 
-### 5. Generic Workload Requirements & Zip Exclusions
+### 5. Generic Workload Requirements, State Linking & Zip Exclusions
+- **Strict Project State Schema (`.productecho/state.json`)**:
+  Project identity and configuration are tracked at `<target_root>/.productecho/state.json`.
+  When writing or modifying this file, agents MUST write ONLY the canonical 6 identity attributes:
+  ```json
+  {
+    "version": "1.0",
+    "application_name": "<name>",
+    "db_identifier": "<db_id>" | null,
+    "root_directory": "<dir>" | null,
+    "remote_repo": "<owner/repo>" | null,
+    "updated_at": "<iso_timestamp>"
+  }
+  ```
+  **FORBIDDEN ATTRIBUTES**: NEVER write dynamic runtime or cloud-managed attributes like `"domain_url"`, `"status"`, `"container_port"`, or `"env_vars"` into `.productecho/state.json`. Cloud status, runtime URLs, and ingress states belong exclusively in the cloud database (`tenant_project_link` / `resources`) and must be queried dynamically via `get_application_status` or the dashboard.
+- **Bidirectional Project State Linking**: Always ensure `.productecho/` is added to `.gitignore` by default so machine-specific credentials or temporary runtime states are not committed.
 - **Port Ingress**: Bind to `process.env.PORT` or `os.getenv("PORT")` (default 3000 / 8000 / 8080) on host `0.0.0.0`.
-- **Zip Exclusions**: Exclude `.git`, `node_modules`, `.next`, `.venv`, `target`, `build`, `.env*`, and build outputs from source archives.
+- **Zip Exclusions**: Exclude `.git`, `node_modules`, `.next`, `.venv`, `target`, `build`, `.env*`, `.productecho`, and build outputs from source archives.
+

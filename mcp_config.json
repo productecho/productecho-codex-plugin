@@ -5,13 +5,8 @@
       "args": [
         "-y",
         "mcp-remote",
-        "https://api.productecho.com/mcp",
-        "--header",
-        "PRODUCT-ECHO-API-KEY: ${PRODUCT_ECHO_API_KEY}"
-      ],
-      "env": {
-        "PRODUCT_ECHO_API_KEY": "${PRODUCT_ECHO_API_KEY}"
-      }
+        "https://api.productecho.com/mcp"
+      ]
     }
   }
 }

@@ -14,7 +14,7 @@ This skill provides step-by-step procedures and production readiness best practi
 
 ## 🌟 Core Value Proposition & Key Features
 
-- **Instant Zero-Config Cloud Deployments**: Go from source code to a live, secure public HTTPS URL in under 30 seconds.
+- **Target-Aware Cloud Deployments**: Route server workloads to containers and eligible SPAs to the shared static CDN.
 - **Smart Source Inspection & Auto-Configuration**: Automatically detect project frameworks, listening ports, and required environment variables before deploying.
 - **Multi-Language Production Runtime Support**: Native support for Node.js, Next.js, Python, Golang, and Java applications.
 - **Clean Packaging Automation**: Automatically packages clean source archives, omitting heavy node modules and sensitive local files.
@@ -54,47 +54,81 @@ Before deploying any application, ensure the project follows these standard prod
 ## 📦 Clean Source Packaging Protocol
 
 When creating the application source archive:
-- **Exclude Local Caches & Artifacts**: Never include `node_modules/`, `.next/`, `.venv/`, `dist/`, `build/`, `target/`, `__pycache__/`, or `.git/`.
+- **Exclude Local Caches & Artifacts**: Never include `node_modules/`, `.next/`, `.venv/`, `dist/`, `build/`, `target/`, `__pycache__/`, `.git/`, or `.productecho/`.
 - **Exclude Secrets & Keys**: Never include `.env`, `.env.*`, `*.pem`, `*.key`, or credentials.
 - **Archive Format**: Package directly from the project root into a `.zip` file so project manifests reside at the top level.
+  ```bash
+  zip -r source.zip . -x "node_modules/*" ".next/*" ".git/*" ".venv/*" "target/*" "build/*" "dist/*" "*.env" ".productecho/*"
+  ```
 
 ---
 
 ## 🚀 Step-by-Step Deployment Workflow
 
 ```
-[1. Check Workspace] ──> [2. Inspect Source] ──> [3. Upload Archive] ──> [4. Deploy Service] ──> [5. Monitor Health]
+[0. Check / Link State] ──> [1. Check Workspace] ──> [2. Inspect Source] ──> [3. Upload Archive] ──> [4. Deploy & Sync State] ──> [5. Monitor Health]
 ```
+
+### Step 0: State Discovery & Bidirectional Linking
+1. Check if `<target_root>/.productecho/state.json` exists.
+   - If present, read `application_name`, `db_identifier`, `root_directory`, and `remote_repo`.
+   - If absent, determine `application_name`, detect git remote slug (`git config --get remote.origin.url`), and specify monorepo root offset if applicable.
+2. Ensure `.productecho/` is added to `.gitignore` so local state is never committed.
+3. You can call `link_project(application_name=...)` to bind the state before or during deployment.
+4. **Canonical 6-Field Schema**: When creating or updating `<target_root>/.productecho/state.json`, write ONLY these 6 fields:
+   ```json
+   {
+     "version": "1.0",
+     "application_name": "<name>",
+     "db_identifier": "<db_id>" | null,
+     "root_directory": "<dir>" | null,
+     "remote_repo": "<owner/repo>" | null,
+     "updated_at": "<iso_timestamp>"
+   }
+   ```
+   **CRITICAL**: NEVER write `domain_url`, `status`, or other cloud runtime fields into `state.json`.
 
 ### Step 1: Check Workspace Context
 Call `get_workspace_info` to verify active tenant quotas and existing services.
 
 ### Step 2: Source Inspection
-Call `inspect_application_source(application_name="my-app")` to receive the presigned upload URL and detected environment expectations.
+Call `inspect_application_source(application_name="my-app")` to receive the presigned upload URL, detected environment expectations, and `recommended_deployment_target`.
+
+- Use `static_cdn` only when inspection recommends it. A Dockerfile or server runtime must use `container`.
+- Use `container` when inspection is unavailable or uncertain.
+- The dashboard may let the user override a static recommendation to `container`; never override a container recommendation to `static_cdn`.
 
 ### Step 3: Upload Source Archive
 HTTP `PUT` the clean `.zip` archive to the presigned `upload_url` with header `Content-Type: application/zip`.
 
-### Step 4: Deploy Application
-Call `deploy_application` with application name, S3 reference, container port, and environment variables:
+### Step 4: Deploy Application & Sync State
+Call `deploy_application` with application name, S3 reference, container port, state linking metadata, and environment variables:
 ```json
 {
   "application_name": "my-app",
+  "deployment_target": "auto",
   "s3_key": "builds/tenant/my-app/upl-xxxx.zip",
   "container_port": 8000,
+  "remote_repo": "my-org/my-project",
+  "root_directory": "./client",
+  "db_identifier": "prod-db-postgres-01",
   "env_vars": {
     "DATABASE_URL": "postgresql://user:pass@endpoint:5432/dbname"
   }
 }
 ```
+- If `db_identifier` is provided and the database is not in an active state, it will be automatically created/provisioned.
+- Persist returned `project_state` to `<target_root>/.productecho/state.json`. Ensure it strictly contains ONLY the 6 canonical keys (`version`, `application_name`, `db_identifier`, `root_directory`, `remote_repo`, `updated_at`). NEVER persist `domain_url` or `status`.
+- `auto` resolves to the inspected recommendation. A static release receives a stable six-character `*.cdn.productecho.com` URL; a container release remains under `*.productecho.com`.
+- Every static redeploy rebuilds source and uploads an immutable release. ProductEcho switches the CloudFront KVS route only after upload, checks `productecho-release.json` through the public URL, rolls back the route on failure, and retains the latest three releases.
 
 ### Step 5: Monitor Live Status
 Call `get_application_status(application_name="my-app")` until status becomes `READY` and returns the live public HTTPS domain.
 
 ### Step 6: Lifecycle Management
-- **Hibernate Service**: Call `pause_application(application_name="my-app")` when traffic is idle.
-- **Resume Service**: Call `resume_application(application_name="my-app")` to bring the service back online.
-- **Deprovision Service**: Call `delete_application(application_name="my-app")` when removing the service.
+- **Hibernate Service**: Call `pause_application(application_name="my-app")`. Containers scale to zero; static apps remove their KVS route while retaining releases.
+- **Resume Service**: Call `resume_application(application_name="my-app")`. Static apps restore and health-check their active release.
+- **Deprovision Service**: Call `delete_application(application_name="my-app")`. Static apps remove the KVS key before deleting all versioned S3 artifacts.
 
 ---
 

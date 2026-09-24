@@ -1,56 +1,44 @@
 # ProductEcho Authentication & Connection Troubleshooting Guide
 
-This guide details how to obtain your API token from `app.productecho.com`, configure credentials in Codex / ChatGPT, and resolve 401 Unauthorized errors.
+This guide details how to authenticate with the ProductEcho Cloud MCP Server via automated OAuth 2.0 / 2.1 PKCE or static workspace API keys, configure connections in Codex, ChatGPT, and Cursor, and resolve 401 Unauthorized errors.
 
 ---
 
-## 🔐 1. How to Obtain and Configure Your Token
+## 🔐 1. Authentication Methods
 
+### Method A: Automated OAuth 2.0 / 2.1 PKCE (Standard)
+1. **One-Click Authorization**:
+   - In Codex or your MCP client, select or install the ProductEcho plugin.
+   - The client connects to `http://localhost:8000/mcp` (or `https://api.productecho.com/mcp`).
+   - A browser window opens to `http://localhost:8000/oauth/authorize`.
+   - Click **"Authorize Access"**.
+2. **Access Token Saved**:
+   - The client receives an OAuth access token (`pe_at_...`) and automatically caches it.
+
+### Method B: Static Workspace API Key (Headless / Pipelines)
 1. **Sign Up or Log In**:
    - Go to **[app.productecho.com/signup](https://app.productecho.com/signup)** (or **[app.productecho.com/login](https://app.productecho.com/login)**).
-   - Sign in with your work email or Google account.
-
 2. **Copy Your API Token**:
-   - In the ProductEcho Console, navigate to **Settings → API Keys**.
-   - Create or copy an active MCP API token (`pe_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx`).
-
-3. **Paste & Configure in Your Environment**:
-   - **Environment Variable**:
-     ```bash
-     export PRODUCT_ECHO_API_KEY="pe_live_your_token_here"
-     ```
-   - **Codex / ChatGPT `.mcp.json`**:
-     ```json
-     {
-       "productecho": {
-         "command": "npx",
-         "args": [
-           "-y",
-           "mcp-remote",
-           "https://api.productecho.com/mcp",
-           "--header",
-           "PRODUCT-ECHO-API-KEY: pe_live_your_token_here"
-         ],
-         "env": {
-           "PRODUCT_ECHO_API_KEY": "pe_live_your_token_here"
-         }
-       }
-     }
-     ```
+   - In the console, go to **Settings → API Keys**.
+   - Copy an active MCP token (`pe_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx`).
+3. **Configure Environment Variable**:
+   ```bash
+   export PRODUCT_ECHO_API_KEY="pe_live_your_token_here"
+   ```
 
 ---
 
 ## 🛑 2. Resolving `401 Unauthorized` Errors
 
 When a tool call or connection fails with `401 Unauthorized`:
-1. **Verify Token Existence**: Ensure `PRODUCT_ECHO_API_KEY` is not empty or malformed.
-2. **Check Token Status**:
-   - Log in at **[app.productecho.com/login](https://app.productecho.com/login)**.
-   - Go to **Settings → API Keys** to verify if the key is active or has expired.
-3. **Generate a Fresh Key**:
-   - If revoked, click **Create API Key** to issue a new token.
-   - Update your environment variable or `.mcp.json` with the new token.
-4. **Re-test Connection**:
+1. **If using OAuth 2.0 Plugin**:
+   - Re-open `http://localhost:8000/oauth/authorize` (or `https://api.productecho.com/oauth/authorize`) and re-authorize the session.
+   - If using `mcp-remote`, restart `npx -y mcp-remote http://localhost:8000/mcp` to refresh the cached token.
+2. **If using Static API Keys**:
+   - Ensure `PRODUCT_ECHO_API_KEY` is not empty or malformed.
+   - Check **Settings → API Keys** to verify if the key was revoked or rotated.
+   - Update `export PRODUCT_ECHO_API_KEY="pe_live_..."`.
+3. **Re-test Connection**:
    - Run `get_workspace_info` to verify active connection.
 
 ---
@@ -64,13 +52,8 @@ When a tool call or connection fails with `401 Unauthorized`:
     "args": [
       "-y",
       "mcp-remote",
-      "https://api.productecho.com/mcp",
-      "--header",
-      "PRODUCT-ECHO-API-KEY: ${PRODUCT_ECHO_API_KEY}"
-    ],
-    "env": {
-      "PRODUCT_ECHO_API_KEY": "${PRODUCT_ECHO_API_KEY}"
-    }
+      "http://localhost:8000/mcp"
+    ]
   }
 }
 ```
