@@ -9,8 +9,8 @@ This guide details how to authenticate with the ProductEcho Cloud MCP Server via
 ### Method A: Automated OAuth 2.0 / 2.1 PKCE (Standard)
 1. **One-Click Authorization**:
    - In Codex or your MCP client, select or install the ProductEcho plugin.
-   - The client connects to `http://localhost:8000/mcp` (or `https://api.productecho.com/mcp`).
-   - A browser window opens to `http://localhost:8000/oauth/authorize`.
+   - The client connects to `https://api.productecho.com/mcp`.
+   - A browser window opens to `https://api.productecho.com/oauth/authorize`.
    - Click **"Authorize Access"**.
 2. **Access Token Saved**:
    - The client receives an OAuth access token (`pe_at_...`) and automatically caches it.
@@ -32,8 +32,8 @@ This guide details how to authenticate with the ProductEcho Cloud MCP Server via
 
 When a tool call or connection fails with `401 Unauthorized`:
 1. **If using OAuth 2.0 Plugin**:
-   - Re-open `http://localhost:8000/oauth/authorize` (or `https://api.productecho.com/oauth/authorize`) and re-authorize the session.
-   - If using `mcp-remote`, restart `npx -y mcp-remote http://localhost:8000/mcp` to refresh the cached token.
+   - Re-open `https://api.productecho.com/oauth/authorize`and re-authorize the session.
+   - If using `mcp-remote`, restart `npx -y mcp-remote https://api.productecho.com/mcp` to refresh the cached token.
 2. **If using Static API Keys**:
    - Ensure `PRODUCT_ECHO_API_KEY` is not empty or malformed.
    - Check **Settings → API Keys** to verify if the key was revoked or rotated.
@@ -52,7 +52,7 @@ When a tool call or connection fails with `401 Unauthorized`:
     "args": [
       "-y",
       "mcp-remote",
-      "http://localhost:8000/mcp"
+      "https://api.productecho.com/mcp"
     ]
   }
 }

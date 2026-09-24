@@ -30,7 +30,7 @@ The ProductEcho MCP integration natively negotiates OAuth 2.1 with PKCE (`S256`)
 
 1. **Install or Enable Plugin**: In Codex or your MCP client, select the ProductEcho plugin.
 2. **One-Click Authorization**:
-   - The client connects to `http://localhost:8000/mcp` (or `https://api.productecho.com/mcp`).
+   - The client connects to `https://api.productecho.com/mcp`.
    - A browser window opens to the authorization consent screen (`/oauth/authorize`).
    - Click **"Authorize Access"** to grant permissions for your workspace.
 3. **Session Established**:
@@ -51,12 +51,11 @@ The ProductEcho MCP integration natively negotiates OAuth 2.1 with PKCE (`S256`)
 {
   "productecho": {
     "command": "npx",
-    "args": ["-y", "mcp-remote", "http://localhost:8000/mcp"]
+    "args": ["-y", "mcp-remote", "https://api.productecho.com/mcp"]
   }
 }
 ```
 
----
 
 ## 🔄 401 Unauthorized & Session Recovery Handling
 
@@ -64,7 +63,7 @@ When an MCP tool call fails or tools are unavailable in the current session:
 
 1. **Explain the Status**: Inform the user that the ProductEcho MCP session needs authorization.
 2. **Provide the Resolution Steps**:
-   - If using the **OAuth2 Plugin / `mcp-remote`**: Trigger authorization to open `http://localhost:8000/oauth/authorize` (or `https://api.productecho.com/oauth/authorize`) and click **Authorize Access**.
+   - If using the **OAuth2 Plugin / `mcp-remote`**: Trigger authorization to open `https://api.productecho.com/oauth/authorize` and click **Authorize Access**.
    - If using **Static API Keys**: Set `export PRODUCT_ECHO_API_KEY="pe_live_..."` from **Settings → API Keys**.
 3. **Verify Connection**: Invoke `get_workspace_info` to confirm active workspace access and proceed with resource management.
 

@@ -68,7 +68,7 @@ productecho-plugin/
 The ProductEcho plugin supports standard OAuth 2.1 PKCE authorization.
 
 When installing the plugin or connecting via `mcp-remote`, authentication is negotiated automatically:
-1. `mcp-remote` connects to the MCP endpoint (`http://localhost:8000/mcp` or `https://api.productecho.com/mcp`).
+1. `mcp-remote` connects to the MCP endpoint (`https://api.productecho.com/mcp`).
 2. The server challenges with `HTTP 401` and provides discovery metadata (`/.well-known/oauth-protected-resource`).
 3. Your browser automatically opens the consent screen (`/oauth/authorize`), where you click **Authorize**.
 4. An OAuth access token (`pe_at_...`) is issued and cached locally—no manual key copy-pasting required!
@@ -83,7 +83,7 @@ The plugin requests `mcp:fullwrite` by default so one consent covers the complet
     "args": [
       "-y",
       "mcp-remote",
-      "http://localhost:8000/mcp"
+      "https://api.productecho.com/mcp"
     ]
   }
 }
