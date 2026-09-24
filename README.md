@@ -31,8 +31,12 @@ The **ProductEcho Plugin** (`productecho-plugin`) connects **Codex** and **ChatG
 
 3. **`productecho-connect`**:
    - Protocol connection and API token authentication.
-   - Workspace metadata and resource quota discovery.
    - Support query submission and issue escalation.
+
+4. **`productecho-agents`**:
+   - Autonomous AI agent workload packaging and rollout.
+   - Built-in MCP sidecars (`mcp-postgres`, `mcp-redis`, `mcp-py-exec`, `mcp-web-search`).
+   - Spend budgets, interactive sandbox invocation, and hibernation.
 
 ---
 
@@ -40,9 +44,12 @@ The **ProductEcho Plugin** (`productecho-plugin`) connects **Codex** and **ChatG
 
 ```
 productecho-plugin/
+├── .claude-plugin/
+│   ├── marketplace.json     # Claude Code Marketplace Catalog
+│   └── plugin.json          # Claude Code Plugin Manifest
 ├── .codex-plugin/
 │   └── plugin.json          # Codex Plugin Manifest
-├── plugin.json              # Root Manifest (dual-compatibility)
+├── plugin.json              # Universal Root Manifest
 ├── .mcp.json                # MCP Server connection configuration
 ├── mcp_config.json          # Universal MCP Server configuration
 ├── .app.json                # Registered MCP application mapping
@@ -54,7 +61,8 @@ productecho-plugin/
 ├── skills/
 │   ├── productecho-deploy/  # Application deployment & packaging skill
 │   ├── productecho-postgres/# Managed PostgreSQL database skill
-│   └── productecho-connect/ # Workspace connection & governance skill
+│   ├── productecho-connect/ # Workspace connection & governance skill
+│   └── productecho-agents/  # Autonomous agent & MCP sidecar skill
 ├── LICENSE                  # Apache-2.0 License
 ├── .gitignore               # Git ignore configuration
 └── README.md
@@ -62,7 +70,29 @@ productecho-plugin/
 
 ---
 
-## 🚀 Authentication & Quick Start
+## 🚀 Quick Installation
+
+### Claude Code
+```bash
+claude plugin marketplace add productecho/skills
+claude plugin install productecho@productecho
+```
+Then run `/reload-plugins` inside Claude to activate.
+
+### Universal Skills CLI (Cursor, Windsurf, OpenCode, Codex)
+```bash
+npx -y skills add productecho/skills --skill '*' --yes --global
+```
+
+### Codex MCP Registration
+```bash
+codex mcp add productecho --url https://api.productecho.com/mcp
+codex mcp login productecho
+```
+
+---
+
+## 🔐 Authentication & OAuth 2.1 Flow
 
 ### Standard OAuth 2.0 Flow (Codex / ChatGPT / Claude / mcp-remote)
 The ProductEcho plugin supports standard OAuth 2.1 PKCE authorization.

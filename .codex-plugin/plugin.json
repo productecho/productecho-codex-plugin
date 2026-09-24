@@ -1,6 +1,6 @@
 {
   "name": "productecho-plugin",
-  "version": "1.0.0+codex.20260924143341",
+  "version": "1.0.0",
   "description": "Deploy and manage ProductEcho applications and PostgreSQL resources through OAuth-protected MCP tools.",
   "author": {
     "name": "ProductEcho Team",
@@ -8,7 +8,7 @@
     "url": "https://productecho.com"
   },
   "homepage": "https://productecho.com",
-  "repository": "https://github.com/productecho/productecho-codex-plugin",
+  "repository": "https://github.com/productecho/skills",
   "license": "Apache-2.0",
   "keywords": [
     "cloud-deployment",
@@ -20,6 +20,7 @@
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
+  "apps": "./.app.json",
   "interface": {
     "displayName": "ProductEcho",
     "shortDescription": "Deploy applications and managed PostgreSQL with OAuth",

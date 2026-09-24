@@ -4,5 +4,13 @@
       "type": "http",
       "url": "https://api.productecho.com/mcp"
     }
+  },
+  "productecho": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "mcp-remote",
+      "https://api.productecho.com/mcp"
+    ]
   }
 }
