@@ -15,6 +15,11 @@ This document provides a concise reference for all ProductEcho Model Context Pro
 | `pause_application` | Scale a container to zero or remove a static app's CloudFront KVS route. | `application_name` |
 | `resume_application` | Resume a container or restore and health-check a static app's active KVS route. | `application_name` |
 | `delete_application` | Remove the public route first, then deprovision target-specific resources and artifacts. | `application_name` |
+| `link_project` | Bind a local codebase/monorepo to a ProductEcho application and optional database identity. | `application_name`, `root_directory`, `db_identifier`, `remote_repo` |
+| `get_project_link` | Retrieve cloud deployment state and project identity for an application or repository (use during Step 0 state discovery). | `application_name`, `remote_repo`, `root_directory` |
+| `get_project_state` | Deprecated alias for `get_project_link` — retained for backward compatibility. | `application_name`, `remote_repo`, `root_directory` |
+| `get_application_env` | Retrieve configured environment variables for a deployed application. | `application_name` |
+| `update_application_env` | Update environment variables and optionally trigger a rolling restart without rebuilding. | `application_name`, `env_vars`, `redeploy` |
 
 ---
 
@@ -39,3 +44,15 @@ This document provides a concise reference for all ProductEcho Model Context Pro
 | :--- | :--- | :--- |
 | `get_workspace_info` | Query workspace name, slug, tenant ID, quotas, and owner details. | None |
 | `submit_admin_query` | Submit a priority ticket, technical inquiry, or quota request directly to `admin@productecho.com`. | `message`, `subject`, `topic`, `error_details`, `metadata` |
+
+---
+
+## 4. Custom Domains for Static CDN Applications
+
+| Tool | Purpose & Value | Primary Arguments |
+| :--- | :--- | :--- |
+| `check_domain_availability` | Verify a subdomain prefix or verified custom domain is available before deploying or binding. | `domain_prefix`, `custom_domain`, `application_name`, `deployment_target` |
+| `list_static_custom_domains` | List custom domain bindings for a static CDN application. | `application_name` |
+| `add_static_custom_domain` | Bind a verified tenant custom domain to a static CDN application. | `application_name`, `tenant_domain_id` |
+| `check_static_custom_domain_status` | Check DNS verification and TLS certificate issuance status for a binding. | `application_name`, `binding_id` |
+| `remove_static_custom_domain` | Detach a custom domain binding and release its CDN route. | `application_name`, `binding_id` |

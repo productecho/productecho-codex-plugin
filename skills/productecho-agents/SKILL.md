@@ -10,6 +10,8 @@ description: >-
 
 This skill provides comprehensive workflows, architectural guidance, and API specifications for packaging, deploying, executing, and scaling **autonomous AI agent workloads** on ProductEcho Cloud.
 
+> **Prerequisite**: this skill calls the `/api/v1/agents` REST API directly — not MCP tools. It requires a Bearer JWT (`PRODUCT_ECHO_TOKEN`) obtained from the ProductEcho web console, distinct from the MCP OAuth connection the other ProductEcho skills use (see the `productecho-connect` skill for that flow).
+
 ProductEcho Autonomous Agents run as isolated, containerized Kubernetes microservices backed by Model Context Protocol (MCP) sidecars (databases, memory, sandboxes, web groundings), configurable daily token budgets, and native interactive sandboxes.
 
 ---

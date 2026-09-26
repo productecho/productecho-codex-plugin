@@ -50,8 +50,8 @@ productecho-plugin/
 ├── .codex-plugin/
 │   └── plugin.json          # Codex Plugin Manifest
 ├── plugin.json              # Universal Root Manifest
-├── .mcp.json                # MCP Server connection configuration
-├── mcp_config.json          # Universal MCP Server configuration
+├── .mcp.json                # Native MCP HTTP config (used by all three plugin.json manifests)
+├── mcp_config.json          # Legacy stdio-bridge config (mcp-remote) for clients without native HTTP MCP support
 ├── .app.json                # Registered MCP application mapping
 ├── assets/
 │   ├── icon.png             # Plugin composer icon
@@ -75,7 +75,7 @@ productecho-plugin/
 ### Claude Code
 ```bash
 claude plugin marketplace add productecho/skills
-claude plugin install productecho@productecho
+claude plugin install productecho-plugin@productecho
 ```
 Then run `/reload-plugins` inside Claude to activate.
 
@@ -105,16 +105,30 @@ When installing the plugin or connecting via `mcp-remote`, authentication is neg
 
 The plugin requests `mcp:fullwrite` by default so one consent covers the complete full-stack workflow: workspace discovery, application deployment and management, PostgreSQL provisioning and management, and database credential access. `mcp:fullread` is available for read-only clients. Sending support requests uses the separate `mcp:support:write` scope.
 
-#### `.mcp.json` Configuration (Local & Remote)
+#### `.mcp.json` Configuration (native HTTP — used by Claude Code, Codex, and other MCP-native clients)
 ```json
 {
-  "productecho": {
-    "command": "npx",
-    "args": [
-      "-y",
-      "mcp-remote",
-      "https://api.productecho.com/mcp"
-    ]
+  "mcpServers": {
+    "productecho": {
+      "type": "http",
+      "url": "https://api.productecho.com/mcp"
+    }
+  }
+}
+```
+
+#### `mcp_config.json` Configuration (stdio bridge — for clients without native HTTP MCP support)
+```json
+{
+  "mcpServers": {
+    "productecho": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://api.productecho.com/mcp"
+      ]
+    }
   }
 }
 ```

@@ -10,6 +10,8 @@ description: >-
 
 This skill guides Codex and AI agents on connecting to the ProductEcho Cloud MCP Server via automated OAuth 2.0 / 2.1 PKCE or static workspace API keys, discovering workspace context, recovering from unauthenticated states, and managing cloud resources.
 
+> **Prerequisite**: this skill establishes the ProductEcho MCP server connection itself (configured by this plugin's `.mcp.json` / `mcp_config.json`). All other ProductEcho skills assume that connection is already active — run this skill first if MCP tools aren't yet available.
+
 ---
 
 ## 🌟 Core Value Proposition & Key Features
@@ -45,13 +47,28 @@ The ProductEcho MCP integration natively negotiates OAuth 2.1 with PKCE (`S256`)
 - `mcp:support:write` is separate and is requested only when the user wants to send a support request.
 - Granular `mcp:apps:*`, `mcp:postgres:*`, and `mcp:workspace:*` scopes remain available to clients that need least-privilege access.
 
-#### `.mcp.json` Configuration
+#### `.mcp.json` Configuration (native HTTP — used by Claude Code, Codex, and other MCP-native clients)
 
 ```json
 {
-  "productecho": {
-    "command": "npx",
-    "args": ["-y", "mcp-remote", "https://api.productecho.com/mcp"]
+  "mcpServers": {
+    "productecho": {
+      "type": "http",
+      "url": "https://api.productecho.com/mcp"
+    }
+  }
+}
+```
+
+#### `mcp_config.json` Configuration (stdio bridge — for clients without native HTTP MCP support)
+
+```json
+{
+  "mcpServers": {
+    "productecho": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://api.productecho.com/mcp"]
+    }
   }
 }
 ```
@@ -75,8 +92,9 @@ When an MCP tool call fails or tools are unavailable in the current session:
 | :------------------- | :----------------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | `get_workspace_info` | Query authenticated workspace name, slug, ID, owner email, tier, and resource quotas | None                                                                  |
 | `list_applications`  | List deployed web applications and APIs for the tenant                               | `deployment_status` (optional filter)                                 |
-| `list_postgres`      | List all active and paused database instances for the tenant                         | None                                                                  |
 | `submit_admin_query` | Open a priority support ticket or escalation directly to `admin@productecho.com`     | `message` (required), `subject`, `topic`, `error_details`, `metadata` |
+
+See `productecho-postgres` for `list_postgres` and full database lifecycle management.
 
 ---
 

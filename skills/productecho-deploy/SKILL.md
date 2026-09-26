@@ -3,12 +3,15 @@ name: productecho-deploy
 description: >-
   Use when inspecting, packaging, configuring, and deploying web applications and backend APIs
   to ProductEcho Cloud via MCP tools. Ensures production runtime readiness, automatic port binding,
-  clean source archiving, and seamless lifecycle management.
+  clean source archiving, environment variable management, custom domain binding, and seamless
+  lifecycle management.
 ---
 
 # ProductEcho Application Deployment & Packaging Skill
 
 This skill provides step-by-step procedures and production readiness best practices for packaging, inspecting, and deploying web applications and backend APIs to **ProductEcho Cloud** using ProductEcho MCP tools.
+
+> **Prerequisite**: tool calls in this skill refer to the ProductEcho MCP server configured by this plugin (`.mcp.json` / `mcp_config.json`). Connect first via the `productecho-connect` skill or your client's MCP-add flow (e.g. `codex mcp add productecho --url https://api.productecho.com/mcp && codex mcp login productecho`) if these tools aren't yet available.
 
 ---
 
@@ -72,7 +75,7 @@ When creating the application source archive:
 ### Step 0: State Discovery & Bidirectional Linking
 1. Check if `<target_root>/.productecho/state.json` exists.
    - If present, read `application_name`, `db_identifier`, `root_directory`, and `remote_repo`.
-   - If absent, determine `application_name`, detect git remote slug (`git config --get remote.origin.url`), and specify monorepo root offset if applicable.
+   - If absent, call `get_project_link(application_name=..., remote_repo=..., root_directory=...)` to check for an existing cloud link before falling back to git-remote heuristics (detect git remote slug via `git config --get remote.origin.url`, and specify monorepo root offset if applicable). `get_project_state` is a deprecated alias for the same tool — prefer `get_project_link` in new code.
 2. Ensure `.productecho/` is added to `.gitignore` so local state is never committed.
 3. You can call `link_project(application_name=...)` to bind the state before or during deployment.
 4. **Canonical 6-Field Schema**: When creating or updating `<target_root>/.productecho/state.json`, write ONLY these 6 fields:
@@ -89,7 +92,7 @@ When creating the application source archive:
    **CRITICAL**: NEVER write `domain_url`, `status`, or other cloud runtime fields into `state.json`.
 
 ### Step 1: Check Workspace Context
-Call `get_workspace_info` to verify active tenant quotas and existing services.
+Call `get_workspace_info` to verify active tenant quotas and existing services (see the `productecho-connect` skill for full details on this tool).
 
 ### Step 2: Source Inspection
 Call `inspect_application_source(application_name="my-app")` to receive the presigned upload URL, detected environment expectations, and `recommended_deployment_target`.
@@ -130,19 +133,19 @@ Call `get_application_status(application_name="my-app")` until status becomes `R
 - **Resume Service**: Call `resume_application(application_name="my-app")`. Static apps restore and health-check their active release.
 - **Deprovision Service**: Call `delete_application(application_name="my-app")`. Static apps remove the KVS key before deleting all versioned S3 artifacts.
 
+### Step 7: Environment Variable Management
+- **Read Current Values**: Call `get_application_env(application_name="my-app")` to retrieve configured environment variables (sensitive values masked).
+- **Update Values**: Call `update_application_env(application_name="my-app", env_vars={...}, redeploy=true)` to set new environment variables. `redeploy=true` (default) dispatches a rolling restart of running pods with the new values, without a full rebuild.
+
+### Step 8: Custom Domains for Static CDN Apps
+Only applies to applications deployed with `deployment_target="static_cdn"`:
+1. Call `check_domain_availability(custom_domain="app.example.com", deployment_target="static_cdn")` to confirm the hostname isn't already routed elsewhere.
+2. Call `add_static_custom_domain(application_name="my-app", tenant_domain_id=...)` to bind a verified tenant custom domain (from tenant custom domains) and get CNAME verification instructions.
+3. Call `check_static_custom_domain_status(application_name="my-app", binding_id=...)` to poll DNS verification and TLS certificate issuance.
+4. Call `list_static_custom_domains(application_name="my-app")` to list all bindings for the app, or `remove_static_custom_domain(application_name="my-app", binding_id=...)` to detach one.
+
 ---
 
 ## 🆘 Direct Support Escalation
 
-If an unexpected build error or platform constraint occurs:
-1. Extract the error details from `get_application_status`.
-2. Call `submit_admin_query`:
-   ```json
-   {
-     "subject": "Deployment failure on my-app",
-     "topic": "deployment-failure",
-     "message": "Encountered build error during compilation.",
-     "error_details": "<logs>",
-     "metadata": { "application_name": "my-app" }
-   }
-   ```
+If an unexpected build error or platform constraint occurs, extract the error details from `get_application_status` and escalate via `submit_admin_query` — see the `productecho-connect` skill for that tool's full parameters and example payloads.

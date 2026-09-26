@@ -43,17 +43,34 @@ When a tool call or connection fails with `401 Unauthorized`:
 
 ---
 
-## 🔧 3. Configuration Reference (`.mcp.json`)
+## 🔧 3. Configuration Reference
+
+### `.mcp.json` (native HTTP — used by Claude Code, Codex, and other MCP-native clients)
 
 ```json
 {
-  "productecho": {
-    "command": "npx",
-    "args": [
-      "-y",
-      "mcp-remote",
-      "https://api.productecho.com/mcp"
-    ]
+  "mcpServers": {
+    "productecho": {
+      "type": "http",
+      "url": "https://api.productecho.com/mcp"
+    }
+  }
+}
+```
+
+### `mcp_config.json` (stdio bridge — for clients without native HTTP MCP support)
+
+```json
+{
+  "mcpServers": {
+    "productecho": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://api.productecho.com/mcp"
+      ]
+    }
   }
 }
 ```

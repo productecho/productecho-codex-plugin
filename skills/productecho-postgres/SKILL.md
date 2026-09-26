@@ -10,6 +10,8 @@ description: >-
 
 This skill provides step-by-step procedures, tool calling workflows, and best practices for provisioning, scaling, managing, and connecting **production-grade managed PostgreSQL databases** on ProductEcho Cloud using ProductEcho MCP tools.
 
+> **Prerequisite**: tool calls in this skill refer to the ProductEcho MCP server configured by this plugin (`.mcp.json` / `mcp_config.json`). Connect first via the `productecho-connect` skill or your client's MCP-add flow (e.g. `codex mcp add productecho --url https://api.productecho.com/mcp && codex mcp login productecho`) if these tools aren't yet available.
+
 ---
 
 ## 🌟 Core Value Proposition & Key Features
@@ -53,6 +55,7 @@ This skill provides step-by-step procedures, tool calling workflows, and best pr
 3. Call `get_postgres_credentials(db_identifier="x7k9p2")` to retrieve the generated password and `connection_url`.
 
 ### 2. Wiring Database to Application Deployments
+See the `productecho-deploy` skill for the full `deploy_application` workflow.
 1. Retrieve connection details:
    ```json
    {
